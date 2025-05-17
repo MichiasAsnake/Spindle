@@ -1,0 +1,94 @@
+/* styles.css - Styling for the PMS indicators */
+
+/* PMS status column header */
+.pms-status-header {
+  text-align: center !important;
+  font-weight: bold !important;
+  background-color: #f0f0f0 !important;
+}
+
+/* PMS status cell */
+.pms-status-cell {
+  text-align: center !important;
+  vertical-align: middle !important;
+  padding: 4px !important;
+}
+
+/* PMS indicators */
+.pms-yes {
+  font-size: 16px !important;
+  color: #2ecc71 !important;
+}
+
+.pms-no {
+  font-size: 16px !important;
+  color: #e74c3c !important;
+}
+
+.pms-loading {
+  font-size: 16px !important;
+  color: #3498db !important;
+}
+
+/* PMS indicator on job detail page */
+.pms-indicator {
+  display: inline-block !important;
+  margin-left: 15px !important;
+  padding: 5px 10px !important;
+  border-radius: 4px !important;
+  font-weight: bold !important;
+}
+
+.pms-indicator .pms-yes {
+  background-color: rgba(46, 204, 113, 0.1) !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  border: 1px solid rgba(46, 204, 113, 0.3) !important;
+}
+
+.pms-indicator .pms-no {
+  background-color: rgba(231, 76, 60, 0.1) !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  border: 1px solid rgba(231, 76, 60, 0.3) !important;
+}
+
+/* Highlight PMS cells to make them more visible */
+.pms-status-cell.has-pms {
+  background-color: rgba(46, 204, 113, 0.1) !important;
+}
+
+.pms-status-cell.no-pms {
+  background-color: rgba(231, 76, 60, 0.1) !important;
+}
+
+/* Direct Filter Panel Styling */
+#direct-pms-filter-panel {
+  font-family: Arial, sans-serif !important;
+  position: fixed !important;
+  top: 50px !important;
+  right: 10px !important;
+  z-index: 10000 !important;
+  background: white !important;
+  padding: 10px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+  border: 1px solid #ddd !important;
+}
+
+.direct-filter-button {
+  padding: 5px 10px !important;
+  border: 1px solid #ccc !important;
+  border-radius: 3px !important;
+  background: #f0f0f0 !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  margin: 0 2px !important;
+}
+
+.direct-filter-button.active {
+  background-color: #007bff !important;
+  color: white !important;
+  border-color: #0056b3 !important;
+  font-weight: bold !important;
+} 

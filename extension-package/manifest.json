@@ -1,0 +1,46 @@
+{
+  "name": "Decopress PMS Indicator",
+  "version": "1.0",
+  "description": "Shows PMS color indicators on Decopress job list",
+  "manifest_version": 3,
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://intranet.decopress.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://intranet.decopress.com/JobStatusList/JobStatusList.aspx*",
+        "https://intranet.decopress.com/Jobs/job.aspx*"
+      ],
+      "js": ["content.js", "simple-filter.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["config.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  }
+} 

@@ -1,0 +1,75 @@
+{
+  "cookies": [
+    {
+      "name": "AspxAutoDetectCookieSupport",
+      "value": "1",
+      "domain": "intranet.decopress.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": ".ASPXAUTH",
+      "value": "362A162029AEE943E395ACABE51EFBEAEAC4EC0CDF476480059B76C8A8B4DF3CE91D724F0E7BC6CCF4FB7EE0581295C24034D31E5D7C1B8D089AB609EFC763AA4B8595B9718C2F69234AAEACCFB970D1ABB22437",
+      "domain": "intranet.decopress.com",
+      "path": "/",
+      "expires": 1747503837.27411,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "User",
+      "value": "Guid=8f2d089b-10df-4cff-895e-403fcc904f16&tag_permissions_add=asset,inwards,job,quote&tag_permissions_remove=asset,inwards,job,quote",
+      "domain": "intranet.decopress.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "UserGuid",
+      "value": "8f2d089b-10df-4cff-895e-403fcc904f16",
+      "domain": "intranet.decopress.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "TenantTz",
+      "value": "{\"TzId\":\"America%2fLos_Angeles\"}",
+      "domain": "intranet.decopress.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "localeinfo",
+      "value": "{%22Locale%22:%22en%22%2C%22CustomFormats%22:{%22DM%22:%22MM/DD%22}}",
+      "domain": "intranet.decopress.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "tz",
+      "value": "America/Los_Angeles",
+      "domain": "intranet.decopress.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}

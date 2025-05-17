@@ -1,18 +1,22 @@
 {
-  "name": "spindle",
+  "name": "spindle-scraper",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Job scraper for Decopress",
+  "main": "scrape.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node scrape.js",
+    "generate-icons": "node generate-icons.cjs",
+    "build": "node build.js",
+    "package": "node package.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
+    "canvas": "^2.11.2",
     "dotenv": "^16.5.0",
     "node-fetch": "^3.3.2",
-    "playwright": "^1.52.0"
+    "playwright": "^1.40.0"
   }
 }

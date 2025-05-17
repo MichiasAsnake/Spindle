@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Decopress PMS Indicator</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 15px;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      font-size: 16px;
+      margin-top: 0;
+      color: #333;
+    }
+    .status {
+      margin: 15px 0;
+      padding: 10px;
+      border-radius: 4px;
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+    }
+    .legend {
+      margin-top: 15px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .legend-icon {
+      margin-right: 10px;
+      font-size: 16px;
+    }
+    .yes {
+      color: #2ecc71;
+    }
+    .no {
+      color: #e74c3c;
+    }
+    .loading {
+      color: #3498db;
+    }
+    .footer {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #6c757d;
+      text-align: center;
+    }
+    button {
+      width: 100%;
+      padding: 8px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #0069d9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Decopress PMS Indicator</h1>
+  
+  <div class="status">
+    <div id="status-message">
+      Extension is active and monitoring jobs.
+    </div>
+  </div>
+  
+  <div class="legend">
+    <div class="legend-item">
+      <span class="legend-icon yes">✅</span>
+      <span>Job contains PMS colors</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon no">❌</span>
+      <span>Job does not contain PMS colors</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon loading">⏳</span>
+      <span>Loading PMS status</span>
+    </div>
+  </div>
+  
+  <button id="clearData">Clear Saved Data</button>
+  
+  <div class="footer">
+    <p>Version 1.0</p>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html> 
