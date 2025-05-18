@@ -50,6 +50,15 @@ async function saveJobToSupabase(jobId, hasPms) {
       return false;
     }
     
+    // Create payload
+    const jobData = {
+      id: jobId,
+      has_pms: hasPms,
+      updated_at: new Date().toISOString()
+    };
+    
+    console.log('Sending data to Supabase:', jobData);
+    
     const response = await fetch(`${config.url}/rest/v1/jobs`, {
       method: 'POST',
       headers: {
@@ -58,15 +67,12 @@ async function saveJobToSupabase(jobId, hasPms) {
         'Content-Type': 'application/json',
         'Prefer': 'resolution=merge-duplicates'
       },
-      body: JSON.stringify({
-        id: jobId,
-        has_pms: hasPms,
-        updated_at: new Date().toISOString()
-      })
+      body: JSON.stringify(jobData)
     });
     
     if (!response.ok) {
-      console.error(`Failed to save job ${jobId} to Supabase:`, response.statusText);
+      const errorText = await response.text();
+      console.error(`Failed to save job ${jobId} to Supabase:`, response.status, response.statusText, errorText);
       return false;
     }
     
@@ -147,7 +153,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         
         sendResponse({ hasPms: jobData.has_pms });
       } else {
-        // If not in Supabase, default to false
+        // If not in Supabase, we'll create a new entry with default to false
+        console.log(`Job ${request.jobId} not found in Supabase, creating new entry`);
+        
+        // Set initial value to false in local cache
+        pmsJobs[request.jobId] = false;
+        chrome.storage.local.set({ 'pmsJobs': pmsJobs });
+        
+        // Save to Supabase with initial value of false
+        saveJobToSupabase(request.jobId, false);
+        
+        // Respond with the default value
         sendResponse({ hasPms: false });
       }
     });

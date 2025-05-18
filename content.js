@@ -5,6 +5,43 @@ console.log('Decopress PMS Indicator content script loaded - START');
 // Create a mapping of job IDs to their PMS status
 const pmsJobStatus = {};
 
+// Function to check if a job has PMS colors by examining page content
+function detectPmsColors() {
+  console.log('Detecting PMS colors in job page');
+  
+  // Get the job ID from the URL
+  const jobId = window.location.href.match(/ID=(\d+)/i)?.[1];
+  if (!jobId) {
+    console.error('Could not extract job ID from URL');
+    return;
+  }
+  
+  // Find elements that might contain PMS color information
+  const pageText = document.body.innerText;
+  
+  // Look for common PMS indicators in the text
+  const hasPms = 
+    /\bpms\b/i.test(pageText) || 
+    /\bpantone\b/i.test(pageText) || 
+    /\bspot\s+colou?r/i.test(pageText) ||
+    /\bspecial\s+colou?r/i.test(pageText);
+  
+  console.log(`PMS detection result for job ${jobId}: ${hasPms}`);
+  
+  // Update our local cache
+  pmsJobStatus[jobId] = hasPms;
+  
+  // Send the status to the background script for storage and Supabase update
+  chrome.runtime.sendMessage(
+    { action: "updateJobPmsStatus", jobId: jobId, hasPms: hasPms },
+    response => {
+      console.log(`Updated PMS status for job ${jobId}:`, response);
+    }
+  );
+  
+  return hasPms;
+}
+
 // Function to add a PMS column to the job list table
 function addPmsColumn() {
   console.log('Adding PMS column to job list');
@@ -184,24 +221,14 @@ function handleJobDetailPage() {
   // Add to the title element
   titleElement.appendChild(pmsIndicator);
   
-  // Check if we have the PMS status in memory
-  if (pmsJobStatus[jobId] !== undefined) {
-    console.log(`Using cached PMS status for job ${jobId}: ${pmsJobStatus[jobId]}`);
-    updateJobDetailPmsStatus(pmsIndicator, pmsJobStatus[jobId]);
-  } else {
-    // Request PMS status from background script
-    console.log(`Requesting PMS status for job ${jobId} from background`);
-    chrome.runtime.sendMessage(
-      { action: "getJobPmsStatus", jobId: jobId },
-      response => {
-        console.log(`Received PMS status for job ${jobId}:`, response);
-        // Store the response in our mapping
-        pmsJobStatus[jobId] = response.hasPms;
-        // Update the indicator
-        updateJobDetailPmsStatus(pmsIndicator, response.hasPms);
-      }
-    );
-  }
+  // First, detect PMS colors in the current page
+  const detectedPms = detectPmsColors();
+  
+  // Then, update the UI with the result
+  updateJobDetailPmsStatus(pmsIndicator, detectedPms);
+  
+  // Store the detected status
+  pmsJobStatus[jobId] = detectedPms;
 }
 
 // Function to update the PMS indicator on the job detail page
