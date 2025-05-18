@@ -1,7 +1,7 @@
 {
-  "name": "Decopress PMS Indicator",
+  "name": "JobSight",
   "version": "1.0",
-  "description": "Shows PMS color indicators on Decopress job list",
+  "description": "Gain insights into print jobs",
   "manifest_version": 3,
   "permissions": [
     "storage",
@@ -26,7 +26,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["config.js"],
+      "resources": ["config.js", "images/logo.png"],
       "matches": ["<all_urls>"]
     }
   ],

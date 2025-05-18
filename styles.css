@@ -1,10 +1,26 @@
 /* styles.css - Styling for the PMS indicators */
 
+/* Font declarations */
+@font-face {
+  font-family: 'BRSonoma-SemiBold';
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/BRSonoma-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'BRSonoma-Medium';
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/BRSonoma-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+
 /* PMS status column header */
 .pms-status-header {
   text-align: center !important;
   font-weight: bold !important;
   background-color: #f0f0f0 !important;
+  font-family: 'BRSonoma-SemiBold', Arial, sans-serif !important;
 }
 
 /* PMS status cell */
@@ -12,22 +28,39 @@
   text-align: center !important;
   vertical-align: middle !important;
   padding: 4px !important;
+  transition: background-color 0.3s ease !important;
+  font-family: 'BRSonoma-Medium', Arial, sans-serif !important;
 }
 
 /* PMS indicators */
 .pms-yes {
   font-size: 16px !important;
   color: #2ecc71 !important;
+  transition: transform 0.2s ease !important;
 }
 
 .pms-no {
   font-size: 16px !important;
   color: #e74c3c !important;
+  transition: transform 0.2s ease !important;
 }
 
 .pms-loading {
   font-size: 16px !important;
   color: #3498db !important;
+  animation: pulse 1.5s infinite ease-in-out !important;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* Add a subtle hover effect to PMS cells */
+.pms-status-cell:hover .pms-yes,
+.pms-status-cell:hover .pms-no {
+  transform: scale(1.2) !important;
 }
 
 /* PMS indicator on job detail page */
@@ -37,6 +70,8 @@
   padding: 5px 10px !important;
   border-radius: 4px !important;
   font-weight: bold !important;
+  transition: all 0.3s ease !important;
+  font-family: 'BRSonoma-Medium', Arial, sans-serif !important;
 }
 
 .pms-indicator .pms-yes {
@@ -62,9 +97,18 @@
   background-color: rgba(231, 76, 60, 0.1) !important;
 }
 
+/* Add a subtle hover effect to rows with PMS */
+tr.js-jobstatus-row:hover .pms-status-cell.has-pms {
+  background-color: rgba(46, 204, 113, 0.2) !important;
+}
+
+tr.js-jobstatus-row:hover .pms-status-cell.no-pms {
+  background-color: rgba(231, 76, 60, 0.2) !important;
+}
+
 /* Direct Filter Panel Styling */
 #direct-pms-filter-panel {
-  font-family: Arial, sans-serif !important;
+  font-family: 'BRSonoma-Medium', Arial, sans-serif !important;
   position: fixed !important;
   top: 50px !important;
   right: 10px !important;
@@ -84,6 +128,7 @@
   cursor: pointer !important;
   font-size: 14px !important;
   margin: 0 2px !important;
+  font-family: 'BRSonoma-Medium', Arial, sans-serif !important;
 }
 
 .direct-filter-button.active {
