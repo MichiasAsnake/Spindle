@@ -5,6 +5,100 @@ console.log('Decopress PMS Indicator content script loaded - START');
 // Create a mapping of job IDs to their PMS status
 const pmsJobStatus = {};
 
+// Function to check if a job has PMS colors by examining page content
+function detectPmsColors() {
+  console.log('Detecting PMS colors in job page');
+  
+  // Get the job ID from the URL
+  const jobId = window.location.href.match(/ID=(\d+)/i)?.[1];
+  if (!jobId) {
+    console.error('Could not extract job ID from URL');
+    return;
+  }
+  
+  // Look for PMS colors in job lines only
+  const jobLines = document.querySelectorAll('.js-jobline-row');
+  console.log(`Found ${jobLines.length} job lines`);
+  
+  let hasPms = false;
+  
+  // Check each job line
+  jobLines.forEach((row, index) => {
+    // Get all text content from the row
+    const allText = Array.from(row.querySelectorAll('td'))
+      .map(td => td.textContent.trim())
+      .join(' ')
+      .toLowerCase(); // Convert to lowercase for case-insensitive matching
+    
+    console.log(`Job line ${index} - Checking text: "${allText.substring(0, 100)}..."`);
+    
+    // Define patterns that indicate PMS colors
+    const pmsPatterns = [
+      /\bpms\s*\d+\b/i,                  // PMS followed by numbers (PMS 123)
+      /\bpantone\s*\d+\b/i,              // Pantone followed by numbers
+      /\bspot\s*colou?r\b/i,             // Spot color/colour
+      /\bpms\s*[a-z]+\s*\d+\b/i,         // PMS with color name and number (PMS Blue 072)
+      /\bpantone\s*[a-z]+\s*\d+\b/i      // Pantone with color name and number
+    ];
+    
+    // Exclusion patterns (when these appear, they mean no PMS)
+    const exclusionPatterns = [
+      /\bno\s+pms\b/i,
+      /\bwithout\s+pms\b/i,
+      /\bno\s+pantone\b/i,
+      /\bno\s+spot\b/i,
+      /\bcmyk\b/i,                        // Exclude CMYK matches
+      /\bprocess\s+colou?r\b/i            // Exclude process color matches
+    ];
+    
+    // Check for positive patterns
+    const hasPmsPattern = pmsPatterns.some(pattern => pattern.test(allText));
+    
+    // Check for exclusion patterns
+    const hasExclusionPattern = exclusionPatterns.some(pattern => pattern.test(allText));
+    
+    // If it matches a PMS pattern and doesn't have an exclusion pattern
+    if (hasPmsPattern && !hasExclusionPattern) {
+      console.log(`Found PMS color in job line ${index}: "${allText.substring(0, 100)}..."`);
+      hasPms = true;
+    }
+  });
+
+  // Check order comment if it exists
+  const orderComment = document.querySelector('#orderComment');
+  if (orderComment) {
+    const commentText = orderComment.value.toLowerCase();
+    console.log('Checking order comment for PMS colors');
+    
+    // Check for positive patterns
+    const hasPmsPattern = pmsPatterns.some(pattern => pattern.test(commentText));
+    
+    // Check for exclusion patterns
+    const hasExclusionPattern = exclusionPatterns.some(pattern => pattern.test(commentText));
+    
+    // If it matches a PMS pattern and doesn't have an exclusion pattern
+    if (hasPmsPattern && !hasExclusionPattern) {
+      console.log('Found PMS color in order comment');
+      hasPms = true;
+    }
+  }
+  
+  console.log(`PMS detection result for job ${jobId}: ${hasPms}`);
+  
+  // Update our local cache
+  pmsJobStatus[jobId] = hasPms;
+  
+  // Send the status to the background script for storage and Supabase update
+  chrome.runtime.sendMessage(
+    { action: "updateJobPmsStatus", jobId: jobId, hasPms: hasPms },
+    response => {
+      console.log(`Updated PMS status for job ${jobId}:`, response);
+    }
+  );
+  
+  return hasPms;
+}
+
 // Function to add a PMS column to the job list table
 function addPmsColumn() {
   console.log('Adding PMS column to job list');
@@ -201,43 +295,6 @@ function updateJobDetailPmsStatus(indicatorElement, hasPms) {
   } else {
     indicatorElement.innerHTML = '<span class="pms-no">❌ No PMS Colors</span>';
   }
-}
-
-// Function to check if a job has PMS colors by examining page content
-function detectPmsColors() {
-  console.log('Detecting PMS colors in job page');
-  
-  // Get the job ID from the URL
-  const jobId = window.location.href.match(/ID=(\d+)/i)?.[1];
-  if (!jobId) {
-    console.error('Could not extract job ID from URL');
-    return;
-  }
-  
-  // Find elements that might contain PMS color information
-  const pageText = document.body.innerText;
-  
-  // Look for common PMS indicators in the text
-  const hasPms = 
-    /\bpms\b/i.test(pageText) || 
-    /\bpantone\b/i.test(pageText) || 
-    /\bspot\s+colou?r/i.test(pageText) ||
-    /\bspecial\s+colou?r/i.test(pageText);
-  
-  console.log(`PMS detection result for job ${jobId}: ${hasPms}`);
-  
-  // Update our local cache
-  pmsJobStatus[jobId] = hasPms;
-  
-  // Send the status to the background script for storage and Supabase update
-  chrome.runtime.sendMessage(
-    { action: "updateJobPmsStatus", jobId: jobId, hasPms: hasPms },
-    response => {
-      console.log(`Updated PMS status for job ${jobId}:`, response);
-    }
-  );
-  
-  return hasPms;
 }
 
 // Initialize the extension

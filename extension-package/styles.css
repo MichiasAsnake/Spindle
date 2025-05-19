@@ -12,6 +12,7 @@
   text-align: center !important;
   vertical-align: middle !important;
   padding: 4px !important;
+  position: relative !important;
 }
 
 /* PMS indicators */
@@ -91,4 +92,31 @@
   color: white !important;
   border-color: #0056b3 !important;
   font-weight: bold !important;
+}
+
+/* PMS override buttons */
+.pms-override-buttons {
+  display: none;
+  position: absolute;
+  right: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.pms-status-cell:hover .pms-override-buttons {
+  display: block;
+}
+
+.pms-override-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 14px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.pms-override-btn:hover {
+  opacity: 1;
 } 

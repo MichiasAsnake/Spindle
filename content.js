@@ -4,6 +4,8 @@ console.log('Decopress PMS Indicator content script loaded - START');
 
 // Create a mapping of job IDs to their PMS status
 const pmsJobStatus = {};
+// Create a mapping of user overrides
+const pmsUserOverrides = {};
 
 // Function to check if a job has PMS colors by examining page content
 function detectPmsColors() {
@@ -15,16 +17,53 @@ function detectPmsColors() {
     console.error('Could not extract job ID from URL');
     return;
   }
+
+  // Check if there's a user override for this job
+  if (pmsUserOverrides[jobId] !== undefined) {
+    console.log(`Using user override for job ${jobId}: ${pmsUserOverrides[jobId]}`);
+    return pmsUserOverrides[jobId];
+  }
   
-  // Find elements that might contain PMS color information
-  const pageText = document.body.innerText;
+  // Look for PMS colors in job lines only
+  const jobLines = document.querySelectorAll('.js-jobline-row');
+  console.log(`Found ${jobLines.length} job lines`);
   
-  // Look for common PMS indicators in the text
-  const hasPms = 
-    /\bpms\b/i.test(pageText) || 
-    /\bpantone\b/i.test(pageText) || 
-    /\bspot\s+colou?r/i.test(pageText) ||
-    /\bspecial\s+colou?r/i.test(pageText);
+  let hasPms = false;
+  
+  // Check each job line
+  jobLines.forEach((row, index) => {
+    // Get all text content from the row
+    const allText = Array.from(row.querySelectorAll('td'))
+      .map(td => td.textContent.trim())
+      .join(' ')
+      .toLowerCase(); // Convert to lowercase for case-insensitive matching
+    
+    console.log(`Job line ${index} - Checking text: "${allText.substring(0, 100)}..."`);
+    
+    // First check for explicit "NO PMS" cases
+    if (/\bno\s+pms\b/i.test(allText) || /\bwithout\s+pms\b/i.test(allText)) {
+      console.log(`Found explicit NO PMS in job line ${index}`);
+      return; // Skip this line
+    }
+    
+    // Define patterns that indicate PMS colors
+    const pmsPatterns = [
+      /\bpms\s*\d+\b/i,                  // PMS followed by numbers (PMS 123)
+      /\bpantone\s*\d+\b/i,              // Pantone followed by numbers
+      /\bspot\s*colou?r\b/i,             // Spot color/colour
+      /\bpms\s*[a-z]+\s*\d+\b/i,         // PMS with color name and number (PMS Blue 072)
+      /\bpantone\s*[a-z]+\s*\d+\b/i,     // Pantone with color name and number
+      /\bpms\b/i                          // Just PMS (but only if NO PMS wasn't found)
+    ];
+    
+    // Check for positive patterns
+    const hasPmsPattern = pmsPatterns.some(pattern => pattern.test(allText));
+    
+    if (hasPmsPattern) {
+      console.log(`Found PMS color in job line ${index}: "${allText.substring(0, 100)}..."`);
+      hasPms = true;
+    }
+  });
   
   console.log(`PMS detection result for job ${jobId}: ${hasPms}`);
   
@@ -146,15 +185,58 @@ function updatePmsCellStatus(cell, hasPms) {
   // Remove any existing classes
   cell.classList.remove('has-pms', 'no-pms');
   
-  if (hasPms) {
-    cell.innerHTML = '<span class="pms-yes">✅</span>';
-    cell.title = 'Contains PMS colors';
-    cell.classList.add('has-pms');
-  } else {
-    cell.innerHTML = '<span class="pms-no">❌</span>';
-    cell.title = 'No PMS colors';
-    cell.classList.add('no-pms');
+  // Create the status indicator with override buttons
+  const jobId = cell.getAttribute('data-job-id');
+  const statusHtml = hasPms ? 
+    `<span class="pms-yes">✅</span>
+     <div class="pms-override-buttons">
+       <button class="pms-override-btn" data-override="false" title="Mark as No PMS">❌</button>
+     </div>` :
+    `<span class="pms-no">❌</span>
+     <div class="pms-override-buttons">
+       <button class="pms-override-btn" data-override="true" title="Mark as Has PMS">✅</button>
+     </div>`;
+  
+  cell.innerHTML = statusHtml;
+  cell.title = hasPms ? 'Contains PMS colors' : 'No PMS colors';
+  cell.classList.add(hasPms ? 'has-pms' : 'no-pms');
+  
+  // Add click handlers for override buttons
+  const overrideBtn = cell.querySelector('.pms-override-btn');
+  if (overrideBtn) {
+    overrideBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const newStatus = overrideBtn.getAttribute('data-override') === 'true';
+      handlePmsOverride(jobId, newStatus);
+    });
   }
+}
+
+// Function to handle PMS status override
+function handlePmsOverride(jobId, newStatus) {
+  console.log(`User overriding PMS status for job ${jobId} to: ${newStatus}`);
+  
+  // Store the override
+  pmsUserOverrides[jobId] = newStatus;
+  
+  // Update the UI
+  const pmsCell = document.querySelector(`.pms-status-cell[data-job-id="${jobId}"]`);
+  if (pmsCell) {
+    updatePmsCellStatus(pmsCell, newStatus);
+  }
+  
+  // Send the override to the background script for storage and Supabase update
+  chrome.runtime.sendMessage(
+    { 
+      action: "updateJobPmsStatus", 
+      jobId: jobId, 
+      hasPms: newStatus,
+      isUserOverride: true 
+    },
+    response => {
+      console.log(`Updated PMS override for job ${jobId}:`, response);
+    }
+  );
 }
 
 // Function to check for job rows that need PMS cells
