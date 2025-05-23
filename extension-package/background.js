@@ -34,7 +34,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 // Function to save job data to Supabase
-async function saveJobToSupabase(jobId, hasPms) {
+async function saveJobToSupabase(jobId, hasPms, images = null) {
   try {
     console.log(`Saving job ${jobId} with PMS status ${hasPms} to Supabase`);
     
@@ -56,6 +56,11 @@ async function saveJobToSupabase(jobId, hasPms) {
       has_pms: hasPms,
       updated_at: new Date().toISOString()
     };
+
+    // Add images to payload if provided
+    if (images !== null) {
+      jobData.images = images;
+    }
     
     console.log('Sending data to Supabase:', jobData);
     
@@ -118,7 +123,7 @@ async function getJobFromSupabase(jobId) {
     
     if (data && data.length > 0) {
       console.log(`Found job ${jobId} in Supabase:`, data[0]);
-      return data[0];
+      return data[0]; // Return the raw data object
     }
     
     console.log(`Job ${jobId} not found in Supabase`);
@@ -153,18 +158,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         
         sendResponse({ hasPms: jobData.has_pms });
       } else {
-        // If not in Supabase, we'll create a new entry with default to false
-        console.log(`Job ${request.jobId} not found in Supabase, creating new entry`);
-        
-        // Set initial value to false in local cache
-        pmsJobs[request.jobId] = false;
-        chrome.storage.local.set({ 'pmsJobs': pmsJobs });
-        
-        // Save to Supabase with initial value of false
-        saveJobToSupabase(request.jobId, false);
-        
-        // Respond with the default value
-        sendResponse({ hasPms: false });
+        // If not in Supabase, return null/undefined so UI can prompt user to visit job details page
+        console.log(`Job ${request.jobId} not found in Supabase, returning null`);
+        sendResponse({ hasPms: null });
       }
     });
     
@@ -185,6 +181,50 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       
       sendResponse({ success: true, savedToSupabase: saved });
     });
+    
+    return true; // Keep the message channel open for async response
+  }
+  
+  if (request.action === "updateJobImages") {
+    const { jobId, images } = request;
+    
+    // Save to Supabase using the updated function
+    saveJobToSupabase(jobId, null, images)
+      .then(saved => {
+        if (saved) {
+          console.log('Successfully updated job images:', images);
+          sendResponse({ success: true });
+        } else {
+          console.error('Failed to update job images');
+          sendResponse({ success: false, error: 'Failed to save to Supabase' });
+        }
+      })
+      .catch(error => {
+        console.error('Error updating job images:', error);
+        sendResponse({ success: false, error: error.message });
+      });
+    
+    return true; // Keep the message channel open for async response
+  }
+  
+  if (request.action === "getJobImages") {
+    const { jobId } = request;
+    
+    // Get images from Supabase using the updated function
+    getJobFromSupabase(jobId)
+      .then(jobData => {
+        if (jobData) {
+          console.log('Successfully retrieved job images:', jobData.images);
+          sendResponse({ success: true, images: jobData.images || [] });
+        } else {
+          console.log('No images found for job:', jobId);
+          sendResponse({ success: true, images: [] });
+        }
+      })
+      .catch(error => {
+        console.error('Error getting job images:', error);
+        sendResponse({ success: false, error: error.message });
+      });
     
     return true; // Keep the message channel open for async response
   }

@@ -198,6 +198,22 @@ function makePanelDraggable(panel) {
 function addStyles() {
   const style = document.createElement('style');
   style.textContent = `
+    @font-face {
+      font-family: 'BRSonoma';
+      src: url('${chrome.runtime.getURL('fonts/BRSonoma-SemiBold.otf')}') format('opentype');
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'BRSonoma';
+      src: url('${chrome.runtime.getURL('fonts/BRSonoma-Medium.otf')}') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+
     .jobsight-panel {
       position: fixed;
       top: 20px;
@@ -242,11 +258,12 @@ function addStyles() {
     
     .jobsight-logo-text {
       font-size: 24px;
-      font-weight: bold;
-      margin-left: 10px;
+      font-weight: 600;
+      margin-left: auto;
       flex-grow: 1;
-      font-family: Arial, sans-serif;
+      font-family: 'BRSonoma', Arial, sans-serif;
       transition: opacity 0.3s ease;
+      text-align: right;
     }
     
     .collapsed .jobsight-logo-text {
@@ -289,7 +306,7 @@ function addStyles() {
       font-weight: bold;
       margin-bottom: 10px;
       font-size: 16px;
-      font-family: Arial, sans-serif;
+      font-family: 'BRSonoma', sans-serif;
     }
     
     .jobsight-button-group {
@@ -305,7 +322,7 @@ function addStyles() {
       border: none;
       background: white;
       cursor: pointer;
-      font-family: Arial, sans-serif;
+      font-family: 'BRSonoma', sans-serif;
       transition: all 0.2s ease;
       color: #00C07F;
       font-size: 14px;

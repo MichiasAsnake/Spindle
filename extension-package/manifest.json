@@ -26,7 +26,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["config.js", "images/logo.png"],
+      "resources": ["config.js", "images/logo.png", "fonts/BRSonoma-SemiBold.otf", "fonts/BRSonoma-Medium.otf"],
       "matches": ["<all_urls>"]
     }
   ],

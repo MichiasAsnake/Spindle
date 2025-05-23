@@ -7,6 +7,18 @@ const pmsJobStatus = {};
 // Create a mapping of user overrides
 const pmsUserOverrides = {};
 
+// Function to get PMS patterns - ensures patterns are always available
+function getPmsPatterns() {
+  return [
+    /\bpms\s*\d+\b/i,                  // PMS followed by numbers (PMS 123)
+    /\bpantone\s*\d+\b/i,              // Pantone followed by numbers
+    /\bspot\s*colou?r\b/i,             // Spot color/colour
+    /\bpms\s*[a-z]+\s*\d+\b/i,         // PMS with color name and number (PMS Blue 072)
+    /\bpantone\s*[a-z]+\s*\d+\b/i,     // Pantone with color name and number
+    /\bpms\b/i                          // Just PMS (but only if NO PMS wasn't found)
+  ];
+}
+
 // Function to check if a job has PMS colors by examining page content
 function detectPmsColors() {
   console.log('Detecting PMS colors in job page');
@@ -46,24 +58,34 @@ function detectPmsColors() {
       return; // Skip this line
     }
     
-    // Define patterns that indicate PMS colors
-    const pmsPatterns = [
-      /\bpms\s*\d+\b/i,                  // PMS followed by numbers (PMS 123)
-      /\bpantone\s*\d+\b/i,              // Pantone followed by numbers
-      /\bspot\s*colou?r\b/i,             // Spot color/colour
-      /\bpms\s*[a-z]+\s*\d+\b/i,         // PMS with color name and number (PMS Blue 072)
-      /\bpantone\s*[a-z]+\s*\d+\b/i,     // Pantone with color name and number
-      /\bpms\b/i                          // Just PMS (but only if NO PMS wasn't found)
-    ];
-    
-    // Check for positive patterns
-    const hasPmsPattern = pmsPatterns.some(pattern => pattern.test(allText));
+    // Get patterns and check for positive matches
+    const patterns = getPmsPatterns();
+    const hasPmsPattern = patterns.some(pattern => pattern.test(allText));
     
     if (hasPmsPattern) {
       console.log(`Found PMS color in job line ${index}: "${allText.substring(0, 100)}..."`);
       hasPms = true;
     }
   });
+  
+  // Check order comment if it exists
+  const orderComment = document.querySelector('#orderComment');
+  if (orderComment) {
+    const commentText = orderComment.value.toLowerCase();
+    console.log('Checking order comment for PMS colors');
+    
+    // Check for positive patterns
+    const hasPmsPattern = getPmsPatterns().some(pattern => pattern.test(commentText));
+    
+    // Check for exclusion patterns
+    const hasExclusionPattern = exclusionPatterns.some(pattern => pattern.test(commentText));
+    
+    // If it matches a PMS pattern and doesn't have an exclusion pattern
+    if (hasPmsPattern && !hasExclusionPattern) {
+      console.log('Found PMS color in order comment');
+      hasPms = true;
+    }
+  }
   
   console.log(`PMS detection result for job ${jobId}: ${hasPms}`);
   
