@@ -1,4 +1,4 @@
-﻿# Decopress PMS Indicator
+﻿# JobSight PMS Indicator
 
 A Chrome extension that adds PMS color indicators to Decopress job listings.
 
